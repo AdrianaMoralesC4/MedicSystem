@@ -1,0 +1,57 @@
+# Entornos virtuales y Python
+venv/
+.env/
+.venv/
+*.pyc
+__pycache__/
+*.pyo
+*.pyd
+.python-version
+
+# Entornos IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Archivos de configuración local
+.env
+.local.env
+*.env
+.env.local
+
+# Base de datos
+*.db
+*.sqlite
+/postgres_data/
+
+# Logs y archivos generados
+*.log
+logs/
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Archivos de compilación/build
+build/
+dist/
+*.egg-info/
+*.egg
+
+# Archivos de sistema
+.DS_Store
+Thumbs.db
+
+# Archivos de Jupyter Notebook
+*.ipynb
+.ipynb_checkpoints/
+
+# Archivos de documentación generados
+docs/_build/
+
+# Archivos de FastAPI específicos
+/app/staticfiles/
+/app/mediafiles/
+
+# Archivos de Docker
+docker-compose.override.yml
