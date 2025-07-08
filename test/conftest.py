@@ -32,11 +32,29 @@ def client(test_db):
     return TestClient(app)
 
 @pytest.fixture(scope="module")
-def test_user(client):
+async def test_user(client):
+    # Registro de usuario de prueba
     user_data = {
         "nombre_usuario": "testuser",
         "correo_electronico": "test@example.com",
         "contrasena": "testpass"
     }
-    response = client.post("/api/v1/usuarios/", json=user_data)
-    return response.json()
+    response = client.post("/api/v1/usuarios/registro", json=user_data)
+    assert response.status_code == 201
+    
+    # Login para obtener token
+    login_data = {
+        "username": user_data["nombre_usuario"],
+        "password": user_data["contrasena"]
+    }
+    login_response = client.post(
+        "/api/v1/usuarios/login",
+        data=login_data,
+        headers={"Content-Type": "application/x-www-form-urlencoded"}
+    )
+    assert login_response.status_code == 200
+    
+    return {
+        **response.json(),
+        "access_token": login_response.json()["access_token"]
+    }
