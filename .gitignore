@@ -55,3 +55,9 @@ docs/_build/
 
 # Archivos de Docker
 docker-compose.override.yml
+
+# Si usas venv
+.\venv\Scripts\activate
+
+# Si usas env
+.\env\Scripts\activate

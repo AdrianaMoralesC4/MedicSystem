@@ -1,5 +1,6 @@
 from fastapi import HTTPException, status
 from sqlalchemy.orm import Session
+from datetime import datetime, timezone
 from app.schemas.certificado import CertificadoCreate, CertificadoUpdate, CertificadoInDB
 from app.repositories.certificado import certificado_repo
 from app.services.base import ServiceBase
@@ -15,8 +16,16 @@ class CertificadoService(ServiceBase[CertificadoInDB, CertificadoCreate, Certifi
         while certificado_repo.get_by_codigo(db, codigo=codigo):
             codigo = generate_verification_code()
         
-        obj_in.codigo_verificacion = codigo
-        return super().create(db, obj_in=obj_in)
+        # Generar fecha de emisión en UTC
+        fecha_emision = datetime.now(timezone.utc)
+
+        # Preparar datos para guardar
+        data = obj_in.model_dump()
+        data["codigo_verificacion"] = codigo
+        data["fecha_emision"] = fecha_emision
+        obj_in_with_generated = CertificadoCreate(**data)
+
+        return super().create(db, obj_in=obj_in_with_generated)
     
     def get_by_codigo(self, db: Session, codigo: str) -> CertificadoInDB:
         certificado = certificado_repo.get_by_codigo(db, codigo=codigo)
@@ -31,3 +40,4 @@ class CertificadoService(ServiceBase[CertificadoInDB, CertificadoCreate, Certifi
         return certificado_repo.get_by_consulta(db, consulta_id=consulta_id)
 
 certificado_service = CertificadoService()
+

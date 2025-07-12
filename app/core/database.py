@@ -1,27 +1,16 @@
-from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker
-from sqlalchemy.orm import declarative_base
-from .config import settings
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker
+from app.models.base import Base
+from app.core.config import settings
 
-# Asegúrate de que la URL sea la correcta
-SQLALCHEMY_DATABASE_URL = settings.DB_URL
+engine = create_engine(settings.DB_URL, connect_args={})  # Sin check_same_thread si no es SQLite
 
-# Configura el motor asíncrono
-print(f"DB URL: {SQLALCHEMY_DATABASE_URL}")  # ← Añade esto
-engine = create_async_engine(
-    SQLALCHEMY_DATABASE_URL,
-    connect_args={"server_settings": {"application_name": "my_app"}},
-    pool_pre_ping=True,
-    echo=True  # Habilita logs para debug
-)
+SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
-# Usa async_sessionmaker (no sessionmaker)
-SessionLocal = async_sessionmaker(
-    engine,
-    expire_on_commit=False
-)
-
-Base = declarative_base()
-
-async def get_db():
-    async with SessionLocal() as db:
+def get_db():
+    db = SessionLocal()
+    try:
         yield db
+    finally:
+        db.close()
+

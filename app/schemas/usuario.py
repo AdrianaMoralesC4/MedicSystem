@@ -1,6 +1,6 @@
 from datetime import datetime
 from typing import Optional
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 from .base import BaseSchema
 
 class UsuarioBase(BaseSchema):
@@ -17,6 +17,7 @@ class UsuarioUpdate(BaseSchema):
     activo: Optional[bool] = None
 
 class UsuarioInDB(UsuarioBase):
+    model_config = ConfigDict(from_attributes=True)
     id: int
     fecha_registro: datetime
     ultimo_acceso: Optional[datetime]
@@ -25,5 +26,3 @@ class UsuarioInDB(UsuarioBase):
     es_colaborador: bool
     es_paciente: bool
 
-    class Config:
-        from_attributes = True

@@ -6,24 +6,20 @@ from app.core.security import get_current_active_user
 from app.services.consulta import consulta_service
 from app.core.database import get_db
 
-router = APIRouter(prefix="/consultas")
+router = APIRouter()
 
-@router.post("/", response_model=ConsultaInDB)
+@router.post("/", response_model=ConsultaInDB, status_code=201)
 def create_consulta(
     consulta: ConsultaCreate,
     db: Session = Depends(get_db),
     current_user: UsuarioInDB = Depends(get_current_active_user)
 ):
-    """
-    Crear una nueva consulta médica.
-    Requiere ser colaborador de salud.
-    """
-    if not current_user.es_colaborador:
+    # Ahora permite a colaboradores y administradores registrar consultas
+    if not (current_user.es_colaborador or current_user.es_administrador):
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
-            detail="Solo colaboradores de salud pueden registrar consultas"
+            detail="Solo colaboradores o administradores pueden registrar consultas"
         )
-    
     return consulta_service.create(db, obj_in=consulta)
 
 @router.get("/{consulta_id}", response_model=ConsultaInDB)
@@ -32,21 +28,15 @@ def read_consulta(
     db: Session = Depends(get_db),
     current_user: UsuarioInDB = Depends(get_current_active_user)
 ):
-    """
-    Obtener detalles de una consulta específica.
-    """
     consulta = consulta_service.get(db, id=consulta_id)
     if not consulta:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Consulta no encontrada"
         )
-    
-    # Verificar permisos (médico o paciente relacionado)
     if not (current_user.es_colaborador or current_user.id == consulta.cita.paciente.usuario_id):
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="No autorizado para ver esta consulta"
         )
-    
     return consulta
