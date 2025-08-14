@@ -5,7 +5,6 @@ export const api = axios.create({
   headers: { 'Content-Type': 'application/json' }
 })
 
-// Helpers de endpoints (ajusta rutas según tu Tarea 02.03)
 export const endpoints = {
   auth: {
     login: (credentials) => api.post('/auth/login', credentials),
